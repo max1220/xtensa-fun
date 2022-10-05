@@ -97,3 +97,26 @@ popd
 
 kill %1
 ```
+
+
+
+# TODO
+
+There is a bunch of stuff still missing, both in the Linux port, and in
+the related tooling.
+
+ * Figure out a way to build a working FDPIC toolchain to save RAM -
+   Currently, the bFLT binary format is used, which is not well suited
+   to a binary like BusyBox.
+ * It would be great to keep FreeRTOS running on the PRO CPU.
+   In *theory* the two cores *should* be independent enough to support
+   running side by side(separate mapping for MMU, PID, Timers, IRQ, etc.).
+   This would possibly enable using the FreeRTOS drivers from Linux,
+   and could provide important drivers like WiFi or Bluetooth
+   to Linux that would otherwise be difficult or impossible provide due
+   to closed-source binary blob drivers specifically for FreeRTOS.
+ * Make a more RAM-friendly kernel that could fit entirely in the internal
+   SRAM of the ESP32(520K).
+   The current 6.0-based mostly stock kernel probably still has some
+   needlessly large buffers etc. that could be cut down.
+   For inspiration, see the article series on [lwn.net](https://lwn.net/Articles/741494/).
