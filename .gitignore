@@ -1,0 +1,10 @@
+download/
+buildroot/
+esp-idf/
+qemu/
+linux-xtensa/
+
+flash_image.bin
+sdcard.img
+qemu_efuse.bin
+sdcard.img

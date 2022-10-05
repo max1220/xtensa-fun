@@ -1,0 +1,7 @@
+*.o
+*.out
+*.gdb
+main_fdpic
+main_flat
+rootfs
+rootfs.cramfs
