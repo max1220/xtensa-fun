@@ -57,7 +57,7 @@ in flash mode(bootstrap pin set to 0x0f).
 This is the simple bootloader for the Linux image.
 It simply sets up the flash cache and jumps to the Linux CONFIG_KERNEL_LOAD_ADDRESS(0x400d0000).
 
-Mostly copied from (jcmvbkbc Linux bootloader)[https://github.com/jcmvbkbc/esp-idf/blob/linux/examples/get-started/linux_boot/main/linux_boot_main.c]
+Mostly copied from [jcmvbkbc Linux bootloader](https://github.com/jcmvbkbc/esp-idf/blob/linux/examples/get-started/linux_boot/main/linux_boot_main.c)
 
 
 
@@ -67,7 +67,7 @@ This is an experimental bootloader that tries to boot Linux on the
 APP CPU, while leaving FreeRTOS running on the PRO CPU(Not working yet,
 Currently FreeRTOS still stops).
 
-Mostly copied from (jcmvbkbc Linux bootloader)[https://github.com/jcmvbkbc/esp-idf/blob/linux/examples/get-started/linux_boot/main/linux_boot_main.c]
+Mostly copied from [jcmvbkbc Linux bootloader](https://github.com/jcmvbkbc/esp-idf/blob/linux/examples/get-started/linux_boot/main/linux_boot_main.c)
 
 
 
