@@ -77,6 +77,7 @@ static void dump_mmu_regs()
 // map the flash regions for the APP CPU
 static void IRAM_ATTR map_flash()
 {
+	int ret;
 	// The flash memory mappings needed to load Linux
 	//TODO: Hardcoded values
 	unsigned long drom_vaddr = 0x3f400000;
@@ -85,6 +86,7 @@ static void IRAM_ATTR map_flash()
 	unsigned long irom_vaddr = 0x400d0000;
 	unsigned long irom_paddr = 0x00040000;
 	unsigned long irom_page_count = (0x00400000 - irom_paddr) / 0x10000;
+
 
 #if LINUX_BOOT_DUO_DEBUG
 	printf("Mapping flash: DROM V=%lx P=%lx(%ld pages), IROM V=%lx P=%lx(%ld pages)\n",
@@ -104,8 +106,23 @@ static void IRAM_ATTR map_flash()
 	// Map the flash on the APP CPU at the correct address
 	Cache_Read_Disable(1);
 	Cache_Flush(1);
-	cache_flash_mmu_set(1, 0, irom_vaddr, irom_paddr, 64, irom_page_count);
-	cache_flash_mmu_set(1, 0, drom_vaddr, drom_paddr, 64, drom_page_count);
+
+	ret = cache_flash_mmu_set(1, 0, irom_vaddr, irom_paddr, 64, irom_page_count);
+	if (ret) {
+#if LINUX_BOOT_DUO_DEBUG
+		printf("setting irom_vaddr failed: %d\n", ret);
+#endif
+		return;
+	}
+
+	ret = cache_flash_mmu_set(1, 0, drom_vaddr, drom_paddr, 64, drom_page_count);
+	if (ret) {
+#if LINUX_BOOT_DUO_DEBUG
+		printf("setting drom_vaddr failed: %d\n", ret);
+#endif
+		return;
+	}
+
 	Cache_Read_Enable(1);
 
 	// resume FreeRTOS
@@ -158,6 +175,7 @@ void app_main()
 	dump_interrupt_status_registers();
 	dump_interrupt_map_registers();
 	dump_uart_interrupt_config_registers();
+	//dump_mmu_regs();
 
 	// (This is PRO CPU)
 	printf("\n========== ESP32 LINUX DUO BOOTLOADER ==========\n");
@@ -166,7 +184,7 @@ void app_main()
 	map_flash();
 	map_ram();
 
-	//start Linux on APP CPU
+	// start Linux on APP CPU
 	start_APP_cpu(0x400d0000);
 
 	// (Linux should now be running on APP CPU)
