@@ -120,3 +120,4 @@ the related tooling.
    The current 6.0-based mostly stock kernel probably still has some
    needlessly large buffers etc. that could be cut down.
    For inspiration, see the article series on [lwn.net](https://lwn.net/Articles/741494/).
+ * Figure out a way to make more than 4MB Flash available for Linux.
