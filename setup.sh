@@ -162,8 +162,8 @@ function build_flash_image() {
 
 	# flash kernel and rootfs partitions
 	flash_image_at 0x40000 "${ESP_LINUX_DIR}/arch/xtensa/boot/xipImage"
-	#flash_image_at 0x200000 "${ESP_BUILDROOT_DIR}/output/images/rootfs.cramfs"
-	flash_image_at 0x400000 "${ESP_BUILDROOT_DIR}/output/images/rootfs.cramfs"
+	flash_image_at 0x200000 "${ESP_BUILDROOT_DIR}/output/images/rootfs.cramfs"
+	#flash_image_at 0x400000 "${ESP_BUILDROOT_DIR}/output/images/rootfs.cramfs"
 }
 
 
