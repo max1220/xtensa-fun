@@ -40,12 +40,28 @@ function build_buildroot() {
 	cp "${ESP_DOWNLOAD_DIR}/xtensa_esp32.tar" .
 	cp ../buildroot_config .config
 
-	# patch the sources
-	# patch -r - --forward --strip=1 < buildroot_.patch
-
 	make -j13
 
 	popd
+}
+
+# generate a new flash_image.bin by writing
+# the bootloader, partition table, Linux boot loader, kernel and rootfs
+function build_flash_image() {
+	# generate empty files
+	dd if=/dev/zero bs=1024 count=16384 of=flash_image.bin
+	dd if=/dev/zero bs=1 count=124 of=qemu_efuse.bin
+	dd if=/dev/zero bs=1024 count=65536 of=sdcard.img
+
+	# flash bootloader, partition table and Linux boot loader
+	flash_image_at 0x1000 "boot_linux_duo/build/bootloader/bootloader.bin"
+	flash_image_at 0x8000 "boot_linux_duo/build/partition_table/partition-table.bin"
+	flash_image_at 0x10000 "boot_linux_duo/build/linux_boot_duo.bin"
+
+	# flash kernel and rootfs partitions
+	flash_image_at 0x40000 "${ESP_LINUX_DIR}/arch/xtensa/boot/xipImage"
+	flash_image_at 0x200000 "${ESP_BUILDROOT_DIR}/output/images/rootfs.cramfs"
+	#flash_image_at 0x400000 "${ESP_BUILDROOT_DIR}/output/images/rootfs.cramfs"
 }
 
 # build esp-idf
@@ -54,10 +70,6 @@ function build_idf() {
 	pushd "${ESP_IDF_DIR}"
 
 	./install.sh esp32
-
-	# patch the sources
-	patch -r - --forward --strip=1 < ../idf_parttool_hack.patch
-
 	. export.sh
 
 	popd
@@ -70,11 +82,6 @@ function build_linux() {
 
 	# install configuration
 	cp ../linux_config .config
-
-	# patch the sources
-	patch -r - --forward --strip=1 < ../linux_binfmt_flat_endianess.patch
-	patch -r - --forward --strip=1 < ../linux_dts_disable_bootargs.patch
-	patch -r - --forward --strip=1 < ../linux_esp32_serial_rx.patch
 
 	# build linux
 	make -j13
@@ -147,31 +154,12 @@ function flash_image_at() {
 	dd of=flash_image.bin bs=1 conv=notrunc seek="${seek}" count="${count}" if="${file}"
 }
 
-# generate a new flash_image.bin by writing
-# the bootloader, partition table, Linux boot loader, kernel and rootfs
-function build_flash_image() {
-	# generate empty files
-	dd if=/dev/zero bs=1024 count=16384 of=flash_image.bin
-	dd if=/dev/zero bs=1 count=124 of=qemu_efuse.bin
-	dd if=/dev/zero bs=1024 count=65536 of=sdcard.img
-
-	# flash bootloader, partition table and Linux boot loader
-	flash_image_at 0x1000 "boot_linux_duo/build/bootloader/bootloader.bin"
-	flash_image_at 0x8000 "boot_linux_duo/build/partition_table/partition-table.bin"
-	flash_image_at 0x10000 "boot_linux_duo/build/linux_boot_duo.bin"
-
-	# flash kernel and rootfs partitions
-	flash_image_at 0x40000 "${ESP_LINUX_DIR}/arch/xtensa/boot/xipImage"
-	flash_image_at 0x200000 "${ESP_BUILDROOT_DIR}/output/images/rootfs.cramfs"
-	#flash_image_at 0x400000 "${ESP_BUILDROOT_DIR}/output/images/rootfs.cramfs"
-}
-
 
 
 if [ -n "${1}" ]; then
 	eval "${1}" "${@:2}"
 else
-	echo "Supported commands: build_all, build_boot, build_buildroot, build_idf, build_linux, build_qemu, clean, download, flash_qemu"
+	echo "Supported commands: build_all, build_boot, build_buildroot, build_flash_image, build_idf, build_linux, build_qemu, clean, download, flash_qemu"
 fi
 
 
